@@ -86,9 +86,13 @@ export async function buildSchema (
         },
         ada: async () => {
           await throwIfNotInCurrentEra('ada')
+          const circulating = hasuraClient.adaCirculatingSupplyFetcher.value
+          if (circulating === undefined) {
+            return new ApolloError('ada query results are only available when close to the chain tip. This is expected during the initial chain-sync.')
+          }
           return {
             supply: {
-              circulating: hasuraClient.adaCirculatingSupplyFetcher.value,
+              circulating,
               max: genesis.shelley.maxLovelaceSupply
             }
           }
